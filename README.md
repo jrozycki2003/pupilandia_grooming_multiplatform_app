@@ -24,11 +24,12 @@ Aplikacja ma na celu:
 - 🗓 **Rezerwacja wizyt** – szybka i intuicyjna rezerwacja terminów online  
 - 📆 **Kalendarz** – przegląd wszystkich zaplanowanych wizyt  
 - 👩‍💼 **Panel administratora** – narzędzia do zarządzania salonem  
+- 👩‍🔧 **Panel pracownika** – widok harmonogramu własnych rezerwacji i zarządzanie wizytami (bez możliwości usuwania danych)  
 - 🧾 **Historia usług** – dostęp do pełnej historii wizyt  
 - 🔔 **Powiadomienia** – przypomnienia o zbliżających się terminach  
 - 📸 **Galeria zdjęć** – porównania „przed i po” zabiegach  
 - 🐶 **Porady pielęgnacyjne** – praktyczne wskazówki dla właścicieli zwierząt  
-- 📍 **Mapa** – szybki podgląd lokalizacji salonu  
+- 📍 **Mapa salonu** – stała lokalizacja Pupilandii w aplikacji  
 - 🔐 **Bezpieczne logowanie** – autoryzacja użytkowników przez Firebase  
 
 ---
@@ -37,7 +38,7 @@ Aplikacja ma na celu:
 
 - **Flutter** – framework do budowy aplikacji wieloplatformowych  
 - **Firebase** – autoryzacja, Firestore Database, przechowywanie zdjęć  
-- **Google Maps** – integracja map z lokalizacją salonu  
+- **Google Maps** – integracja mapy z lokalizacją salonu  
 - **Table Calendar** – komponent kalendarza  
 - **Flutter Local Notifications** – powiadomienia lokalne  
 - **Image Picker** – wybór zdjęć z galerii lub aparatu  
@@ -47,7 +48,7 @@ Aplikacja ma na celu:
 ## 📱 Obsługiwane platformy
 
 - **Android**  
-- **Web**
+- **Web (localhost)**  
 
 ---
 
@@ -60,17 +61,17 @@ Interfejs zaprojektowano tak, by był prosty, intuicyjny i wygodny zarówno dla 
 
 ## 📸 Screeny aplikacji
 
-Poniżej znajdziesz kilka widoków z aplikacji **Pupilandia** — od ekranu głównego po panel administratora.
+Poniżej znajdują się przykładowe widoki z aplikacji **Pupilandia** — od ekranu głównego po panel administratora i pracownika.
 
 <p align="center">
-  <img src="screenshots/stronaglowna.jpg" alt="Ekran główny" height="300" style="margin:10px"/>
-  <img src="screenshots/rezerwacja.jpg" alt="Rezerwacja wizyty" height="300" style="margin:10px"/>
-  <img src="screenshots/uslugi.jpg" alt="Kalendarz / Usługi" height="300" style="margin:10px"/>
+  <img src="screenshots/stronaglowna.jpg" alt="Ekran główny" height="400" style="margin:10px"/>
+  <img src="screenshots/rezerwacja.jpg" alt="Rezerwacja wizyty" height="400" style="margin:10px"/>
+  <img src="screenshots/uslugi.jpg" alt="Kalendarz / Usługi" height="400" style="margin:10px"/>
 </p>
 <p align="center">
-  <img src="screenshots/porady.jpg" alt="Porady pielęgnacyjne" height="300" style="margin:10px"/>
-  <img src="screenshots/galeria.jpg" alt="Galeria" height="300" style="margin:10px"/>
-  <img src="screenshots/paneladmina.jpg" alt="Panel administratora" height="300" style="margin:10px"/>
+  <img src="screenshots/porady.jpg" alt="Porady pielęgnacyjne" height="400" style="margin:10px"/>
+  <img src="screenshots/galeria.jpg" alt="Galeria" height="400" style="margin:10px"/>
+  <img src="screenshots/paneladmina.jpg" alt="Panel administratora / pracownika" height="400" style="margin:10px"/>
 </p>
 
 > 💡 *Wszystkie zrzuty ekranu pochodzą z działającej wersji aplikacji testowej (Flutter + Firebase).*
@@ -101,13 +102,13 @@ W projekcie wykorzystywane są następujące usługi Firebase:
 - 🔑 **Authentication** – logowanie użytkowników  
 - 💾 **Firestore Database** – przechowywanie danych wizyt i użytkowników  
 - 🖼 **Storage** – przechowywanie zdjęć i multimediów  
-- 🌐 **Hosting** – dla wersji webowej  
 
 **Uprawnienia wymagane przez aplikację:**
 
 - Dostęp do galerii zdjęć  
 - Powiadomienia lokalne  
-- Dostęp do lokalizacji (dla mapy)  
+
+> 🗺️ *Mapa w aplikacji prezentuje stałą lokalizację salonu Pupilandia. Nie jest wymagana zgoda na dostęp do lokalizacji użytkownika.*
 
 ---
 
