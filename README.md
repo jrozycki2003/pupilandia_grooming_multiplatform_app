@@ -59,24 +59,18 @@ Interfejs zaprojektowano tak, by był prosty, intuicyjny i wygodny zarówno dla 
 ---
 
 ## 📸 Screeny aplikacji
-## 📸 Zrzuty ekranu
 
 Poniżej znajdziesz kilka widoków z aplikacji **Pupilandia** — od ekranu głównego po panel administratora.
 
-### 🏠 Ekrany klienta
-
 <p align="center">
-  <img src="screenshots/stronaglowna.jpg" alt="Ekran główny" width="250"/>
-  <img src="screenshots/rezerwacja.jpg" alt="Rezerwacja wizyty" width="250"/>
-  <img src="screenshots/uslugi.jpg" alt="Kalendarz / Usługi" width="250"/>
-  <img src="screenshots/porady.jpg" alt="Porady pielęgnacyjne" width="250"/>
-  <img src="screenshots/galeria.jpg" alt="Galeria" width="250"/>
+  <img src="screenshots/stronaglowna.jpg" alt="Ekran główny" height="300" style="margin:10px"/>
+  <img src="screenshots/rezerwacja.jpg" alt="Rezerwacja wizyty" height="300" style="margin:10px"/>
+  <img src="screenshots/uslugi.jpg" alt="Kalendarz / Usługi" height="300" style="margin:10px"/>
 </p>
-
-### 🐾 Ekran Admina
-
 <p align="center">
-  <img src="screenshots/paneladmina.jpg" alt="Panel administratora" width="250"/>
+  <img src="screenshots/porady.jpg" alt="Porady pielęgnacyjne" height="300" style="margin:10px"/>
+  <img src="screenshots/galeria.jpg" alt="Galeria" height="300" style="margin:10px"/>
+  <img src="screenshots/paneladmina.jpg" alt="Panel administratora" height="300" style="margin:10px"/>
 </p>
 
 > 💡 *Wszystkie zrzuty ekranu pochodzą z działającej wersji aplikacji testowej (Flutter + Firebase).*
