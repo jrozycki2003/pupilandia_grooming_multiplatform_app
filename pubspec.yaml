@@ -1,0 +1,64 @@
+name: kubaproject
+description: "Pupilandia - Profesjonalny salon pielęgnacji dla Twojego pupila"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  firebase_core: ^2.31.0
+  firebase_auth: ^4.17.0 # tylko jeśli potrzebujesz logowania
+  cloud_firestore: ^4.15.0 # tylko jeśli używasz Firestore
+  firebase_storage: ^11.6.0 # tylko jeśli używasz Storage
+  image_picker: ^1.1.2
+  cupertino_icons: ^1.0.8
+  random_string: ^2.3.1
+  shared_preferences: ^2.5.3
+  table_calendar: ^3.1.3
+  intl: ^0.19.0
+  font_awesome_flutter: ^10.7.0
+  url_launcher: ^6.3.0
+  google_maps_flutter: ^2.5.0
+  flutter_launcher_icons: ^0.14.4
+  permission_handler: ^11.3.1
+  timezone: ^0.9.4
+  flutter_local_notifications: ^18.0.1
+  visibility_detector: ^0.4.0+2
+  flutter_staggered_animations: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - images/
+    - images/main_baner.jpg
+    - images/baner.jpg
+    - images/barber.png
+    - images/saloon1.jpg
+    - images/saloon2.jpg
+    - images/saloon3.jpg
+    - images/saloon4.jpg
+    - assets/
+    - assets/logo.png
+
+flutter_launcher_icons:
+  android: true
+  #ios: true
+  web:
+    generate: true
+  image_path: "assets/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/logo.png"
