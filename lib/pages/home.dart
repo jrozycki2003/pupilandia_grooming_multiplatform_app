@@ -28,6 +28,17 @@ import 'package:kubaproject/widgets/web_navbar.dart';
 import 'package:kubaproject/widgets/web_animations.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
+/// Helper function to format category badges for display
+String _formatCategoryBadge(String category) {
+  // Compact format for category badges
+  if (category.contains('Mały pies')) return 'Mały';
+  if (category.contains('Średni pies')) return 'Średni';
+  if (category.contains('Duży pies')) return 'Duży';
+  if (category.contains('Koty')) return 'Kot';
+  if (category.contains('Psy rasowe')) return 'Rasowy';
+  return category;
+}
+
 /// \class Home
 /// \brief Widget głównej strony aplikacji
 class Home extends StatefulWidget {
@@ -183,6 +194,7 @@ class _BeforeAfterCard extends StatelessWidget {
                       ],
                     );
                   }
+
                   return Column(
                     children: [
                       beforeCard,
@@ -306,30 +318,30 @@ class _GalleryImageCardState extends State<_GalleryImageCard> {
                     },
                     errorBuilder:
                         (_, __, ___) => Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.grey[300]!, Colors.grey[200]!],
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.grey[300]!, Colors.grey[200]!],
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.broken_image_rounded,
+                            size: 56,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Błąd ładowania',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.broken_image_rounded,
-                                size: 56,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Błąd ładowania',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
+                      ),
+                    ),
                   ),
                 )
               else
@@ -454,19 +466,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
         final now = DateTime.now();
         final items =
-            docs.map((d) => d.data() as Map<String, dynamic>).where((data) {
-              final startAt =
-                  data['startAt'] is Timestamp
-                      ? (data['startAt'] as Timestamp).toDate()
-                      : null;
-              final endAt =
-                  data['endAt'] is Timestamp
-                      ? (data['endAt'] as Timestamp).toDate()
-                      : null;
-              final started = startAt == null || !startAt.isAfter(now);
-              final notEnded = endAt == null || !endAt.isBefore(now);
-              return started && notEnded;
-            }).toList();
+        docs.map((d) => d.data() as Map<String, dynamic>).where((data) {
+          final startAt =
+          data['startAt'] is Timestamp
+              ? (data['startAt'] as Timestamp).toDate()
+              : null;
+          final endAt =
+          data['endAt'] is Timestamp
+              ? (data['endAt'] as Timestamp).toDate()
+              : null;
+          final started = startAt == null || !startAt.isAfter(now);
+          final notEnded = endAt == null || !endAt.isBefore(now);
+          return started && notEnded;
+        }).toList();
 
         if (items.isEmpty) return const SizedBox.shrink();
 
@@ -475,68 +487,68 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           final pb = (b['pinned'] == true) ? 0 : 1;
           if (pa != pb) return pa - pb;
           final sa =
-              a['startAt'] is Timestamp
-                  ? (a['startAt'] as Timestamp).toDate()
-                  : DateTime(2100);
+          a['startAt'] is Timestamp
+              ? (a['startAt'] as Timestamp).toDate()
+              : DateTime(2100);
           final sb =
-              b['startAt'] is Timestamp
-                  ? (b['startAt'] as Timestamp).toDate()
-                  : DateTime(2100);
+          b['startAt'] is Timestamp
+              ? (b['startAt'] as Timestamp).toDate()
+              : DateTime(2100);
           return sa.compareTo(sb);
         });
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children:
-              items.map((data) {
-                final title = (data['title'] ?? '').toString();
-                final message = (data['message'] ?? '').toString();
-                final pinned = data['pinned'] == true;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3F7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFF06292).withOpacity(0.25),
+          items.map((data) {
+            final title = (data['title'] ?? '').toString();
+            final message = (data['message'] ?? '').toString();
+            final pinned = data['pinned'] == true;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3F7),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFF06292).withOpacity(0.25),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 4),
+                  Icon(
+                    pinned ? Icons.push_pin : Icons.campaign,
+                    color: const Color(0xFFF06292),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (title.isNotEmpty)
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        if (message.isNotEmpty) ...[
+                          if (title.isNotEmpty) const SizedBox(height: 4),
+                          Text(
+                            message,
+                            style: const TextStyle(color: Colors.black87),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(width: 4),
-                      Icon(
-                        pinned ? Icons.push_pin : Icons.campaign,
-                        color: const Color(0xFFF06292),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (title.isNotEmpty)
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            if (message.isNotEmpty) ...[
-                              if (title.isNotEmpty) const SizedBox(height: 4),
-                              Text(
-                                message,
-                                style: const TextStyle(color: Colors.black87),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                ],
+              ),
+            );
+          }).toList(),
         );
       },
     );
@@ -553,53 +565,53 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       if (user != null) {
         final uid = user.uid;
         final email = user.email;
-        
+
         // Sprawdź Admin - najpierw po email jako ID (zgodnie z regułami)
         if (email != null && email.isNotEmpty) {
           final docByEmail =
-              await FirebaseFirestore.instance.collection('Admin').doc(email).get();
+          await FirebaseFirestore.instance.collection('Admin').doc(email).get();
           if (docByEmail.exists) {
             isAdmin = true;
           } else {
             // Fallback: Sprawdź dokument po UID
             final docByUid =
-                await FirebaseFirestore.instance.collection('Admin').doc(uid).get();
+            await FirebaseFirestore.instance.collection('Admin').doc(uid).get();
             if (docByUid.exists) {
               isAdmin = true;
             } else {
               // Ostatni fallback: query po polu email
               final q =
-                  await FirebaseFirestore.instance
-                      .collection('Admin')
-                      .where('email', isEqualTo: email)
-                      .limit(1)
-                      .get();
+              await FirebaseFirestore.instance
+                  .collection('Admin')
+                  .where('email', isEqualTo: email)
+                  .limit(1)
+                  .get();
               isAdmin = q.docs.isNotEmpty;
             }
           }
         }
-        
+
         // Sprawdzenie uprawnień pracownika w kolekcji "Employee"
         if (!isAdmin && email != null && email.isNotEmpty) {
           // Najpierw sprawdź po emailu jako ID dokumentu
           final docByEmail =
-              await FirebaseFirestore.instance.collection('Employee').doc(email).get();
+          await FirebaseFirestore.instance.collection('Employee').doc(email).get();
           if (docByEmail.exists) {
             isEmployee = true;
           } else {
             // Fallback: sprawdź po UID
             final docByUidEmployee =
-                await FirebaseFirestore.instance.collection('Employee').doc(uid).get();
+            await FirebaseFirestore.instance.collection('Employee').doc(uid).get();
             if (docByUidEmployee.exists) {
               isEmployee = true;
             } else {
               // Ostatni fallback: query po polu email
               final qEmployee =
-                  await FirebaseFirestore.instance
-                      .collection('Employee')
-                      .where('email', isEqualTo: email)
-                      .limit(1)
-                      .get();
+              await FirebaseFirestore.instance
+                  .collection('Employee')
+                  .where('email', isEqualTo: email)
+                  .limit(1)
+                  .get();
               isEmployee = qEmployee.docs.isNotEmpty;
             }
           }
@@ -720,9 +732,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 child: TextButton.icon(
                   onPressed:
                       () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LogIn()),
-                      ),
+                    context,
+                    MaterialPageRoute(builder: (_) => const LogIn()),
+                  ),
                   icon: const Icon(Icons.login),
                   label: const Text('Zaloguj się'),
                 ),
@@ -913,7 +925,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => const Home()),
-                          (_) => false,
+                              (_) => false,
                         );
                       },
                     ),
@@ -1000,7 +1012,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   child: const Center(
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.calendar_today,
@@ -1189,22 +1201,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               }
 
                               final breedDocs =
-                                  snapshot.data!.docs.where((doc) {
-                                    final data =
-                                        doc.data() as Map<String, dynamic>;
-                                    return data['category'] == 'Psy rasowe';
-                                  }).toList();
+                              snapshot.data!.docs.where((doc) {
+                                final data =
+                                doc.data() as Map<String, dynamic>;
+                                return data['category'] == 'Psy rasowe';
+                              }).toList();
 
                               // Sort by price descending
                               breedDocs.sort((a, b) {
                                 final priceA =
                                     (a.data()
-                                        as Map<String, dynamic>)['price'] ??
-                                    0;
+                                    as Map<String, dynamic>)['price'] ??
+                                        0;
                                 final priceB =
                                     (b.data()
-                                        as Map<String, dynamic>)['price'] ??
-                                    0;
+                                    as Map<String, dynamic>)['price'] ??
+                                        0;
                                 final numA = priceA is num ? priceA : 0;
                                 final numB = priceB is num ? priceB : 0;
                                 return numB.compareTo(numA);
@@ -1222,32 +1234,32 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   itemCount: breedDocs.length,
                                   itemBuilder: (context, index) {
                                     final data =
-                                        breedDocs[index].data()
-                                            as Map<String, dynamic>;
+                                    breedDocs[index].data()
+                                    as Map<String, dynamic>;
                                     final name =
-                                        (data['name'] ?? '').toString();
+                                    (data['name'] ?? '').toString();
                                     final duration =
-                                        (data['duration'] ?? 60) as int;
+                                    (data['duration'] ?? 60) as int;
                                     final price = (data['price'] ?? 0);
                                     final description =
-                                        (data['description'] ?? '').toString();
+                                    (data['description'] ?? '').toString();
                                     final image =
-                                        (data['image'] ?? '').toString();
+                                    (data['image'] ?? '').toString();
 
                                     final priceStr =
-                                        price is num
-                                            ? (price is int
-                                                ? '$price zł'
-                                                : '${price.toStringAsFixed(2)} zł')
-                                            : '$price zł';
+                                    price is num
+                                        ? (price is int
+                                        ? '$price zł'
+                                        : '${price.toStringAsFixed(2)} zł')
+                                        : '$price zł';
 
                                     return Container(
                                       width: 280,
                                       margin: EdgeInsets.only(
                                         right:
-                                            index < breedDocs.length - 1
-                                                ? 12
-                                                : 0,
+                                        index < breedDocs.length - 1
+                                            ? 12
+                                            : 0,
                                       ),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
@@ -1267,19 +1279,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           if (image.isNotEmpty)
                                             ClipRRect(
                                               borderRadius:
-                                                  BorderRadius.circular(16),
+                                              BorderRadius.circular(16),
                                               child: Image.network(
                                                 image,
                                                 fit: BoxFit.cover,
                                                 filterQuality:
-                                                    FilterQuality.low,
+                                                FilterQuality.low,
                                                 cacheWidth: 560,
                                                 cacheHeight: 360,
                                                 loadingBuilder: (
-                                                  context,
-                                                  child,
-                                                  progress,
-                                                ) {
+                                                    context,
+                                                    child,
+                                                    progress,
+                                                    ) {
                                                   if (progress == null)
                                                     return child;
                                                   return Container(
@@ -1288,8 +1300,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                 },
                                                 errorBuilder:
                                                     (_, __, ___) => Container(
-                                                      color: Colors.grey[300],
-                                                    ),
+                                                  color: Colors.grey[300],
+                                                ),
                                               ),
                                             )
                                           else
@@ -1304,7 +1316,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                   end: Alignment.bottomRight,
                                                 ),
                                                 borderRadius:
-                                                    BorderRadius.circular(16),
+                                                BorderRadius.circular(16),
                                               ),
                                             ),
                                           // Dark overlay
@@ -1314,7 +1326,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                 0.4,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(16),
+                                              BorderRadius.circular(16),
                                             ),
                                           ),
                                           // Content
@@ -1322,7 +1334,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                             padding: const EdgeInsets.all(16),
                                             child: Column(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                               children: [
                                                 Row(
                                                   children: [
@@ -1339,7 +1351,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                           color: Colors.white,
                                                           fontSize: 17,
                                                           fontWeight:
-                                                              FontWeight.bold,
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ),
@@ -1374,7 +1386,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                         color: Colors.white,
                                                         fontSize: 15,
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                        FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],
@@ -1390,7 +1402,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                     ),
                                                     maxLines: 4,
                                                     overflow:
-                                                        TextOverflow.ellipsis,
+                                                    TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -1448,7 +1460,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               for (final doc in docs) {
                                 final data = doc.data() as Map<String, dynamic>;
                                 final category =
-                                    (data['category'] ?? 'Inne').toString();
+                                (data['category'] ?? 'Inne').toString();
                                 if (!categorized.containsKey(category)) {
                                   categorized[category] = [];
                                 }
@@ -1459,12 +1471,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 categorized[category]!.sort((a, b) {
                                   final priceA =
                                       (a.data()
-                                          as Map<String, dynamic>)['price'] ??
-                                      0;
+                                      as Map<String, dynamic>)['price'] ??
+                                          0;
                                   final priceB =
                                       (b.data()
-                                          as Map<String, dynamic>)['price'] ??
-                                      0;
+                                      as Map<String, dynamic>)['price'] ??
+                                          0;
                                   final numA = priceA is num ? priceA : 0;
                                   final numB = priceB is num ? priceB : 0;
                                   return numB.compareTo(numA); // descending
@@ -1503,223 +1515,247 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children:
-                                    filteredCategories.map((category) {
-                                      if (!categorized.containsKey(category)) {
-                                        return const SizedBox.shrink();
-                                      }
+                                filteredCategories.map((category) {
+                                  if (!categorized.containsKey(category)) {
+                                    return const SizedBox.shrink();
+                                  }
 
-                                      final categoryDocs =
-                                          categorized[category]!;
-                                      String categoryIcon = '🐶';
-                                      if (category == 'Koty')
-                                        categoryIcon = '🐱';
+                                  final categoryDocs =
+                                  categorized[category]!;
+                                  String categoryIcon = '🐶';
+                                  if (category == 'Koty')
+                                    categoryIcon = '🐱';
 
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(height: 16),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 12,
+                                  return Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 16),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              const Color(
+                                                0xFFF06292,
+                                              ).withOpacity(0.1),
+                                              const Color(
+                                                0xFF8268DC,
+                                              ).withOpacity(0.1),
+                                            ],
+                                          ),
+                                          borderRadius:
+                                          BorderRadius.circular(16),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              categoryIcon,
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                              ),
                                             ),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  const Color(
-                                                    0xFFF06292,
-                                                  ).withOpacity(0.1),
-                                                  const Color(
-                                                    0xFF8268DC,
-                                                  ).withOpacity(0.1),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              category,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ...categoryDocs.map((doc) {
+                                        final data =
+                                        doc.data()
+                                        as Map<String, dynamic>;
+                                        final name =
+                                        (data['name'] ?? '').toString();
+                                        final duration =
+                                        (data['duration'] ?? 60) as int;
+                                        final price = (data['price'] ?? 0);
+                                        final description =
+                                        (data['description'] ?? '')
+                                            .toString();
+                                        final note =
+                                        (data['note'] ?? '').toString();
+
+                                        final priceStr =
+                                        price is num
+                                            ? (price is int
+                                            ? '${price.toString()} zł'
+                                            : '${price.toStringAsFixed(2)} zł')
+                                            : '${price} zł';
+
+                                        return Container(
+                                          margin: const EdgeInsets.only(
+                                            bottom: 12,
+                                          ),
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                            BorderRadius.circular(16),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.05),
+                                                blurRadius: 15,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      name,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                        FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFF06292).withOpacity(0.15),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Text(
+                                                      _formatCategoryBadge(category),
+                                                      style: const TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Color(0xFFF06292),
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  categoryIcon,
-                                                  style: const TextStyle(
-                                                    fontSize: 24,
+                                              const SizedBox(height: 12),
+                                              Container(
+                                                padding:
+                                                const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFF6F7FB,
+                                                  ),
+                                                  borderRadius:
+                                                  BorderRadius.circular(
+                                                    12,
                                                   ),
                                                 ),
-                                                const SizedBox(width: 12),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.schedule,
+                                                      size: 18,
+                                                      color:
+                                                      Colors.grey[600],
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 8,
+                                                    ),
+                                                    Text(
+                                                      '$duration min',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                        FontWeight.w600,
+                                                        color:
+                                                        Colors.black87,
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    Container(
+                                                      padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        gradient:
+                                                        const LinearGradient(
+                                                          colors: [
+                                                            Color(
+                                                              0xFF8268DC,
+                                                            ),
+                                                            Color(
+                                                              0xFF6B4FC3,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                      ),
+                                                      child: Text(
+                                                        priceStr,
+                                                        style:
+                                                        const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                          FontWeight
+                                                              .bold,
+                                                          color:
+                                                          Colors
+                                                              .white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              if (description
+                                                  .isNotEmpty) ...[
+                                                const SizedBox(height: 8),
                                                 Text(
-                                                  category,
+                                                  description,
                                                   style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
                                                     color: Colors.black87,
+                                                    fontStyle:
+                                                    FontStyle.italic,
                                                   ),
                                                 ),
                                               ],
-                                            ),
+                                              if (note.isNotEmpty) ...[
+                                                const SizedBox(height: 6),
+                                                Text(
+                                                  'ℹ️ $note',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
                                           ),
-                                          const SizedBox(height: 12),
-                                          ...categoryDocs.map((doc) {
-                                            final data =
-                                                doc.data()
-                                                    as Map<String, dynamic>;
-                                            final name =
-                                                (data['name'] ?? '').toString();
-                                            final duration =
-                                                (data['duration'] ?? 60) as int;
-                                            final price = (data['price'] ?? 0);
-                                            final description =
-                                                (data['description'] ?? '')
-                                                    .toString();
-                                            final note =
-                                                (data['note'] ?? '').toString();
-
-                                            final priceStr =
-                                                price is num
-                                                    ? (price is int
-                                                        ? '${price.toString()} zł'
-                                                        : '${price.toStringAsFixed(2)} zł')
-                                                    : '${price} zł';
-
-                                            return Container(
-                                              margin: const EdgeInsets.only(
-                                                bottom: 12,
-                                              ),
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.05),
-                                                    blurRadius: 15,
-                                                    offset: const Offset(0, 4),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    name,
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 12),
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                          12,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: const Color(
-                                                        0xFFF6F7FB,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.schedule,
-                                                          size: 18,
-                                                          color:
-                                                              Colors.grey[600],
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Text(
-                                                          '$duration min',
-                                                          style: const TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                Colors.black87,
-                                                          ),
-                                                        ),
-                                                        const Spacer(),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 12,
-                                                                vertical: 6,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            gradient:
-                                                                const LinearGradient(
-                                                                  colors: [
-                                                                    Color(
-                                                                      0xFF8268DC,
-                                                                    ),
-                                                                    Color(
-                                                                      0xFF6B4FC3,
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  10,
-                                                                ),
-                                                          ),
-                                                          child: Text(
-                                                            priceStr,
-                                                            style:
-                                                                const TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  if (description
-                                                      .isNotEmpty) ...[
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      description,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black87,
-                                                        fontStyle:
-                                                            FontStyle.italic,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                  if (note.isNotEmpty) ...[
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      'ℹ️ $note',
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.black54,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                            );
-                                          }).toList(),
-                                          const SizedBox(height: 8),
-                                        ],
-                                      );
-                                    }).toList(),
+                                        );
+                                      }).toList(),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  );
+                                }).toList(),
                               );
                             },
                           ),
@@ -1803,9 +1839,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             duration: const Duration(milliseconds: 600),
             childAnimationBuilder:
                 (widget) => SlideAnimation(
-                  verticalOffset: 50.0,
-                  child: FadeInAnimation(child: widget),
-                ),
+              verticalOffset: 50.0,
+              child: FadeInAnimation(child: widget),
+            ),
             children: [
               Padding(
                 padding: ResponsiveLayout.getPagePadding(context),
@@ -2065,9 +2101,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               duration: const Duration(milliseconds: 600),
               childAnimationBuilder:
                   (widget) => SlideAnimation(
-                    verticalOffset: 50.0,
-                    child: FadeInAnimation(child: widget),
-                  ),
+                verticalOffset: 50.0,
+                child: FadeInAnimation(child: widget),
+              ),
               children: [
                 HoverScale(
                   scale: 1.02,
@@ -2132,10 +2168,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     }
 
                     final breedDocs =
-                        snapshot.data!.docs.where((doc) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          return data['category'] == 'Psy rasowe';
-                        }).toList();
+                    snapshot.data!.docs.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return data['category'] == 'Psy rasowe';
+                    }).toList();
 
                     breedDocs.sort((a, b) {
                       final priceA =
@@ -2171,20 +2207,20 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           itemCount: breedDocs.length,
                           itemBuilder: (context, index) {
                             final data =
-                                breedDocs[index].data() as Map<String, dynamic>;
+                            breedDocs[index].data() as Map<String, dynamic>;
                             final name = (data['name'] ?? '').toString();
                             final duration = (data['duration'] ?? 60) as int;
                             final price = (data['price'] ?? 0);
                             final description =
-                                (data['description'] ?? '').toString();
+                            (data['description'] ?? '').toString();
                             final image = (data['image'] ?? '').toString();
 
                             final priceStr =
-                                price is num
-                                    ? (price is int
-                                        ? '$price zł'
-                                        : '${price.toStringAsFixed(2)} zł')
-                                    : '$price zł';
+                            price is num
+                                ? (price is int
+                                ? '$price zł'
+                                : '${price.toStringAsFixed(2)} zł')
+                                : '$price zł';
 
                             return Padding(
                               padding: EdgeInsets.only(
@@ -2237,7 +2273,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     }
 
                     final Map<String, List<QueryDocumentSnapshot>> categorized =
-                        {};
+                    {};
                     for (final doc in docs) {
                       final data = doc.data() as Map<String, dynamic>;
                       final category = (data['category'] ?? 'Inne').toString();
@@ -2284,129 +2320,130 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children:
-                          filteredCategories.map((category) {
-                            if (!categorized.containsKey(category)) {
-                              return const SizedBox.shrink();
-                            }
+                      filteredCategories.map((category) {
+                        if (!categorized.containsKey(category)) {
+                          return const SizedBox.shrink();
+                        }
 
-                            final categoryDocs = categorized[category]!;
-                            String categoryIcon = '🐶';
-                            if (category == 'Koty') categoryIcon = '🐱';
+                        final categoryDocs = categorized[category]!;
+                        String categoryIcon = '🐶';
+                        if (category == 'Koty') categoryIcon = '🐱';
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 16,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(
+                                      0xFFF06292,
+                                    ).withOpacity(0.1),
+                                    const Color(
+                                      0xFF8268DC,
+                                    ).withOpacity(0.1),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    categoryIcon,
+                                    style: const TextStyle(fontSize: 28),
                                   ),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        const Color(
-                                          0xFFF06292,
-                                        ).withOpacity(0.1),
-                                        const Color(
-                                          0xFF8268DC,
-                                        ).withOpacity(0.1),
-                                      ],
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    category,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
                                     ),
-                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        categoryIcon,
-                                        style: const TextStyle(fontSize: 28),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        category,
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final spacing = 16.0;
-                                    final int columns =
-                                        ResponsiveLayout.getGridCrossAxisCount(
-                                          context,
-                                          mobile: 1,
-                                          tablet: 2,
-                                          desktop: 3,
-                                        );
-                                    final double availableWidth =
-                                        constraints.maxWidth;
-                                    final double totalSpacing =
-                                        columns > 1
-                                            ? spacing * (columns - 1)
-                                            : 0;
-                                    final double itemWidth =
-                                        columns <= 1
-                                            ? availableWidth
-                                            : (availableWidth - totalSpacing) /
-                                                columns;
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final spacing = 16.0;
+                                final int columns =
+                                ResponsiveLayout.getGridCrossAxisCount(
+                                  context,
+                                  mobile: 1,
+                                  tablet: 2,
+                                  desktop: 3,
+                                );
+                                final double availableWidth =
+                                    constraints.maxWidth;
+                                final double totalSpacing =
+                                columns > 1
+                                    ? spacing * (columns - 1)
+                                    : 0;
+                                final double itemWidth =
+                                columns <= 1
+                                    ? availableWidth
+                                    : (availableWidth - totalSpacing) /
+                                    columns;
 
-                                    return Wrap(
-                                      spacing: spacing,
-                                      runSpacing: 16,
-                                      children: [
-                                        for (final doc in categoryDocs)
+                                return Wrap(
+                                  spacing: spacing,
+                                  runSpacing: 16,
+                                  children: [
+                                    for (final doc in categoryDocs)
                                           () {
-                                            final map =
-                                                doc.data()
-                                                    as Map<String, dynamic>;
-                                            final serviceName =
-                                                (map['name'] ?? '').toString();
-                                            final isLargeDogCategory =
-                                                category ==
+                                        final map =
+                                        doc.data()
+                                        as Map<String, dynamic>;
+                                        final serviceName =
+                                        (map['name'] ?? '').toString();
+                                        final isLargeDogCategory =
+                                            category ==
                                                 'Duży pies (powyżej 25 kg)';
-                                            final bool shouldToggle =
-                                                isLargeDogCategory
-                                                    ? serviceName
-                                                        .toLowerCase()
-                                                        .contains(
-                                                          'pełna pielęgnacja',
-                                                        )
-                                                    : true;
-                                            return SizedBox(
-                                              width: itemWidth,
-                                              child: _ServiceDetailTile(
-                                                name: serviceName,
-                                                duration:
-                                                    ((map['duration'] ?? 60)
-                                                        as int),
-                                                price: _formatPrice(
-                                                  map['price'],
-                                                ),
-                                                description:
-                                                    (map['description'] ?? '')
-                                                        .toString(),
-                                                note:
-                                                    (map['note'] ?? '')
-                                                        .toString(),
-                                                showToggle: shouldToggle,
-                                                expandedInitially: false,
-                                              ),
-                                            );
-                                          }(),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 8),
-                              ],
-                            );
-                          }).toList(),
+                                        final bool shouldToggle =
+                                        isLargeDogCategory
+                                            ? serviceName
+                                            .toLowerCase()
+                                            .contains(
+                                          'pełna pielęgnacja',
+                                        )
+                                            : true;
+                                        return SizedBox(
+                                          width: itemWidth,
+                                          child: _ServiceDetailTile(
+                                            name: serviceName,
+                                            category: category,
+                                            duration:
+                                            ((map['duration'] ?? 60)
+                                            as int),
+                                            price: _formatPrice(
+                                              map['price'],
+                                            ),
+                                            description:
+                                            (map['description'] ?? '')
+                                                .toString(),
+                                            note:
+                                            (map['note'] ?? '')
+                                                .toString(),
+                                            showToggle: shouldToggle,
+                                            expandedInitially: false,
+                                          ),
+                                        );
+                                      }(),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        );
+                      }).toList(),
                     );
                   },
                 ),
@@ -2422,6 +2459,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
 class _ServiceDetailTile extends StatefulWidget {
   final String name;
+  final String category;
   final int duration;
   final String price;
   final String description;
@@ -2431,6 +2469,7 @@ class _ServiceDetailTile extends StatefulWidget {
 
   const _ServiceDetailTile({
     required this.name,
+    this.category = '',
     required this.duration,
     required this.price,
     required this.description,
@@ -2474,13 +2513,38 @@ class _ServiceDetailTileState extends State<_ServiceDetailTile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.name,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.name,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          if (widget.category.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF8268DC).withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _formatCategoryBadge(widget.category),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF8268DC),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Wrap(
@@ -2521,9 +2585,9 @@ class _ServiceDetailTileState extends State<_ServiceDetailTile> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color:
-                              _isExpanded
-                                  ? const Color(0xFFF06292)
-                                  : Colors.grey.withOpacity(0.2),
+                          _isExpanded
+                              ? const Color(0xFFF06292)
+                              : Colors.grey.withOpacity(0.2),
                           width: 1.1,
                         ),
                       ),
@@ -2534,9 +2598,9 @@ class _ServiceDetailTileState extends State<_ServiceDetailTile> {
                             _isExpanded ? 'Zwiń' : 'Szczegóły',
                             style: TextStyle(
                               color:
-                                  _isExpanded
-                                      ? const Color(0xFFF06292)
-                                      : Colors.black87,
+                              _isExpanded
+                                  ? const Color(0xFFF06292)
+                                  : Colors.black87,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -2544,9 +2608,9 @@ class _ServiceDetailTileState extends State<_ServiceDetailTile> {
                           Icon(
                             _isExpanded ? Icons.expand_less : Icons.expand_more,
                             color:
-                                _isExpanded
-                                    ? const Color(0xFFF06292)
-                                    : Colors.black54,
+                            _isExpanded
+                                ? const Color(0xFFF06292)
+                                : Colors.black54,
                           ),
                         ],
                       ),
@@ -2557,69 +2621,69 @@ class _ServiceDetailTileState extends State<_ServiceDetailTile> {
             if (hasDescription || hasNote)
               (widget.showToggle)
                   ? AnimatedCrossFade(
-                    firstChild: const SizedBox.shrink(),
-                    secondChild: Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (hasDescription)
-                            Text(
-                              widget.description,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black87,
-                                height: 1.5,
-                              ),
-                            ),
-                          if (hasNote) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              'ℹ️ ${widget.note}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    crossFadeState:
-                        _isExpanded
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                    duration: const Duration(milliseconds: 200),
-                  )
-                  : Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (hasDescription)
-                          Text(
-                            widget.description,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black87,
-                              height: 1.5,
-                            ),
+                firstChild: const SizedBox.shrink(),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (hasDescription)
+                        Text(
+                          widget.description,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.black87,
+                            height: 1.5,
                           ),
-                        if (hasNote) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            'ℹ️ ${widget.note}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
-                              fontStyle: FontStyle.italic,
-                            ),
+                        ),
+                      if (hasNote) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          'ℹ️ ${widget.note}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                            fontStyle: FontStyle.italic,
                           ),
-                        ],
+                        ),
                       ],
-                    ),
+                    ],
                   ),
+                ),
+                crossFadeState:
+                _isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 200),
+              )
+                  : Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (hasDescription)
+                      Text(
+                        widget.description,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
+                      ),
+                    if (hasNote) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        'ℹ️ ${widget.note}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -2649,11 +2713,11 @@ class _ChipInfo extends StatelessWidget {
     );
     final textStyle =
         labelStyle ??
-        const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        );
+            const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: decoration,
@@ -2734,6 +2798,15 @@ class _UpcomingAppointmentsListState extends State<UpcomingAppointmentsList> {
     return 0;
   }
 
+  String _compactCategory(String category) {
+    if (category.contains('Mały pies')) return 'Mały pies';
+    if (category.contains('Średni pies')) return 'Średni pies';
+    if (category.contains('Duży pies')) return 'Duży pies';
+    if (category.contains('Koty')) return 'Kot';
+    if (category.contains('Psy rasowe')) return 'Pies rasowy';
+    return '';
+  }
+
   List<Map<String, dynamic>> _extractServices(Map<String, dynamic> data) {
     final s = data['services'];
     if (s is List) {
@@ -2754,106 +2827,106 @@ class _UpcomingAppointmentsListState extends State<UpcomingAppointmentsList> {
       barrierDismissible: false,
       builder:
           (ctx) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                const Color(0xFFF06292).withOpacity(0.05),
+              ],
             ),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white,
-                    const Color(0xFFF06292).withOpacity(0.05),
-                  ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.cancel_outlined,
+                  size: 48,
+                  color: Colors.redAccent,
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 20),
+              const Text(
+                'Odwołać wizytę?',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Czy na pewno chcesz odwołać tę wizytę? Ta operacja jest nieodwracalna.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.cancel_outlined,
-                      size: 48,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Odwołać wizytę?',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Czy na pewno chcesz odwołać tę wizytę? Ta operacja jest nieodwracalna.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(
-                              color: Colors.grey[300]!,
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Anuluj',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(
+                          color: Colors.grey[300]!,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            backgroundColor: Colors.redAccent,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Odwołaj wizytę',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                      child: const Text(
+                        'Anuluj',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
                         ),
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Odwołaj wizytę',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
+        ),
+      ),
     );
     if (ok == true) {
       await DatabaseMethods().deleteBooking(bookingId);
@@ -2892,18 +2965,18 @@ class _UpcomingAppointmentsListState extends State<UpcomingAppointmentsList> {
         final docsAll = (snapshot.data as QuerySnapshot).docs;
         final now = DateTime.now();
         final docs =
-            docsAll.where((d) {
-                final data = d.data() as Map<String, dynamic>;
-                final dt = _extractScheduledAt(data);
-                return dt != null && dt.isAfter(now);
-              }).toList()
-              ..sort((a, b) {
-                final ad =
-                    _extractScheduledAt(a.data() as Map<String, dynamic>)!;
-                final bd =
-                    _extractScheduledAt(b.data() as Map<String, dynamic>)!;
-                return ad.compareTo(bd);
-              });
+        docsAll.where((d) {
+          final data = d.data() as Map<String, dynamic>;
+          final dt = _extractScheduledAt(data);
+          return dt != null && dt.isAfter(now);
+        }).toList()
+          ..sort((a, b) {
+            final ad =
+            _extractScheduledAt(a.data() as Map<String, dynamic>)!;
+            final bd =
+            _extractScheduledAt(b.data() as Map<String, dynamic>)!;
+            return ad.compareTo(bd);
+          });
 
         if (docs.isEmpty) {
           return SizedBox(
@@ -2970,352 +3043,357 @@ class _UpcomingAppointmentsListState extends State<UpcomingAppointmentsList> {
         }
         return Column(
           children:
-              docs.map((d) {
-                final data = d.data() as Map<String, dynamic>;
-                final dt = _extractScheduledAt(data);
-                final now = DateTime.now();
-                final isToday =
-                    dt != null &&
+          docs.map((d) {
+            final data = d.data() as Map<String, dynamic>;
+            final dt = _extractScheduledAt(data);
+            final now = DateTime.now();
+            final isToday =
+                dt != null &&
                     dt.year == now.year &&
                     dt.month == now.month &&
                     dt.day == now.day;
-                final durationMin = _extractDurationMinutes(data);
-                final endDt = dt?.add(Duration(minutes: durationMin));
-                final services = _extractServices(data);
-                final serviceNames = services
-                    .map((s) => (s['name'] ?? '').toString())
-                    .where((s) => s.isNotEmpty)
-                    .join(', ');
-                final totalPrice = _extractTotalPrice(data);
-                final date =
-                    (data['date'] ??
-                            (dt != null
-                                ? '${dt.day}/${dt.month}/${dt.year}'
-                                : '-'))
-                        as String;
-                final time =
-                    (data['time'] ?? (dt != null ? _formatHM(dt) : '-'))
-                        as String;
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.white,
-                        const Color(0xFFF06292).withOpacity(0.02),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                    border:
-                        isToday
-                            ? Border.all(
-                              color: const Color(0xFFF06292),
-                              width: 2,
-                            )
-                            : null,
+            final durationMin = _extractDurationMinutes(data);
+            final endDt = dt?.add(Duration(minutes: durationMin));
+            final services = _extractServices(data);
+            final serviceNames = services
+                .map((s) {
+              final name = (s['name'] ?? '').toString();
+              final cat = (s['category'] ?? '').toString();
+              final badge = _compactCategory(cat);
+              return badge.isNotEmpty ? '$name ($badge)' : name;
+            })
+                .where((s) => s.isNotEmpty)
+                .join(', ');
+            final totalPrice = _extractTotalPrice(data);
+            final date =
+            (data['date'] ??
+                (dt != null
+                    ? '${dt.day}/${dt.month}/${dt.year}'
+                    : '-'))
+            as String;
+            final time =
+            (data['time'] ?? (dt != null ? _formatHM(dt) : '-'))
+            as String;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    const Color(0xFFF06292).withOpacity(0.02),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 6),
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header z gradient
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors:
-                                  isToday
-                                      ? [
-                                        const Color(0xFFF06292),
-                                        const Color(0xFFEC407A),
-                                      ]
-                                      : [
-                                        const Color(0xFF8268DC),
-                                        const Color(0xFF6B4FC3),
-                                      ],
+                ],
+                border:
+                isToday
+                    ? Border.all(
+                  color: const Color(0xFFF06292),
+                  width: 2,
+                )
+                    : null,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header z gradient
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors:
+                          isToday
+                              ? [
+                            const Color(0xFFF06292),
+                            const Color(0xFFEC407A),
+                          ]
+                              : [
+                            const Color(0xFF8268DC),
+                            const Color(0xFF6B4FC3),
+                          ],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.pets,
+                              color: Colors.white,
+                              size: 24,
                             ),
                           ),
-                          child: Row(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  serviceNames.isEmpty
+                                      ? 'Wizyta'
+                                      : serviceNames,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (isToday) ...[
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(
+                                        8,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'DZISIAJ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Content
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          // Data i czas
+                          Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: const Color(0xFFF6F7FB),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(
-                                  Icons.pets,
-                                  color: Colors.white,
-                                  size: 24,
+                                  Icons.calendar_today,
+                                  size: 18,
+                                  color: Color(0xFFF06292),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      serviceNames.isEmpty
-                                          ? 'Wizyta'
-                                          : serviceNames,
+                                      date,
                                       style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
                                       ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    if (isToday) ...[
-                                      const SizedBox(height: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'DZISIAJ',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 1,
-                                          ),
+                                    Text(
+                                      endDt != null
+                                          ? '$time - ${_formatHM(endDt)}'
+                                          : time,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Czas trwania i cena
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF6F7FB),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.schedule,
+                                        size: 18,
+                                        color: Color(0xFF8268DC),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${(durationMin ~/ 60) > 0 ? '${durationMin ~/ 60}h ' : ''}${durationMin % 60}min',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
                                         ),
                                       ),
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        // Content
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              // Data i czas
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF6F7FB),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Icon(
-                                      Icons.calendar_today,
-                                      size: 18,
-                                      color: Color(0xFFF06292),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          date,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        Text(
-                                          endDt != null
-                                              ? '$time - ${_formatHM(endDt)}'
-                                              : time,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.grey[600],
-                                          ),
-                                        ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF8268DC),
+                                        Color(0xFF6B4FC3),
                                       ],
                                     ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              // Czas trwania i cena
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF6F7FB),
-                                        borderRadius: BorderRadius.circular(12),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.payments,
+                                        size: 18,
+                                        color: Colors.white,
                                       ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.schedule,
-                                            size: 18,
-                                            color: Color(0xFF8268DC),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '${(durationMin ~/ 60) > 0 ? '${durationMin ~/ 60}h ' : ''}${durationMin % 60}min',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ],
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        totalPrice == 0
+                                            ? 'Bezpłatne'
+                                            : (totalPrice is int
+                                            ? '${totalPrice} zł'
+                                            : '${totalPrice.toStringAsFixed(2)} zł'),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFF8268DC),
-                                            Color(0xFF6B4FC3),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.payments,
-                                            size: 18,
-                                            color: Colors.white,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            totalPrice == 0
-                                                ? 'Bezpłatne'
-                                                : (totalPrice is int
-                                                    ? '${totalPrice} zł'
-                                                    : '${totalPrice.toStringAsFixed(2)} zł'),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (!isToday) ...[
-                                const SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: () async {
-                                          await _confirmCancel(d.id);
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(
-                                            color: Colors.redAccent,
-                                            width: 1.5,
-                                          ),
-                                          foregroundColor: Colors.redAccent,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                        ),
-                                        icon: const Icon(
-                                          Icons.cancel_outlined,
-                                          size: 18,
-                                        ),
-                                        label: const Text(
-                                          'Odwołaj',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: ElevatedButton.icon(
-                                        onPressed: () {
-                                          final prefill = {
-                                            'date': dt,
-                                            'hour': time,
-                                            'services': services,
-                                          };
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => BookAppointmentPage(
-                                                    editBookingId: d.id,
-                                                    prefill: prefill,
-                                                  ),
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(
-                                            0xFFF06292,
-                                          ),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                        ),
-                                        icon: const Icon(
-                                          Icons.edit_calendar,
-                                          size: 18,
-                                        ),
-                                        label: const Text(
-                                          'Przełóż',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
-                              ],
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                          if (!isToday) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () async {
+                                      await _confirmCancel(d.id);
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                        color: Colors.redAccent,
+                                        width: 1.5,
+                                      ),
+                                      foregroundColor: Colors.redAccent,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          12,
+                                        ),
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.cancel_outlined,
+                                      size: 18,
+                                    ),
+                                    label: const Text(
+                                      'Odwołaj',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      final prefill = {
+                                        'date': dt,
+                                        'hour': time,
+                                        'services': services,
+                                      };
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) => BookAppointmentPage(
+                                            editBookingId: d.id,
+                                            prefill: prefill,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(
+                                        0xFFF06292,
+                                      ),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          12,
+                                        ),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    icon: const Icon(
+                                      Icons.edit_calendar,
+                                      size: 18,
+                                    ),
+                                    label: const Text(
+                                      'Przełóż',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         );
       },
     );
@@ -3798,9 +3876,9 @@ class _AddReviewPageState extends State<_AddReviewPage>
                               ),
                               validator:
                                   (v) =>
-                                      (v == null || v.trim().isEmpty)
-                                          ? 'Podaj swoje imię'
-                                          : null,
+                              (v == null || v.trim().isEmpty)
+                                  ? 'Podaj swoje imię'
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -3838,9 +3916,9 @@ class _AddReviewPageState extends State<_AddReviewPage>
                               ),
                               validator:
                                   (v) =>
-                                      (v == null || v.trim().isEmpty)
-                                          ? 'Wpisz treść opinii'
-                                          : null,
+                              (v == null || v.trim().isEmpty)
+                                  ? 'Wpisz treść opinii'
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -3870,7 +3948,7 @@ class _AddReviewPageState extends State<_AddReviewPage>
                                     return;
                                   final name = _nameController.text.trim();
                                   final comment =
-                                      _commentController.text.trim();
+                                  _commentController.text.trim();
                                   try {
                                     await DatabaseMethods().addReview({
                                       'reviewer': name,
@@ -4045,7 +4123,7 @@ class _GroomersSection extends StatelessWidget {
                 final phone = (data['phone'] ?? '').toString();
                 // Try both 'image' and 'imageUrl' fields
                 final imageUrl =
-                    (data['image'] ?? data['imageUrl'] ?? '').toString();
+                (data['image'] ?? data['imageUrl'] ?? '').toString();
                 return Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFF6F7FB),
@@ -4058,14 +4136,14 @@ class _GroomersSection extends StatelessWidget {
                         radius: 26,
                         backgroundColor: Colors.white,
                         backgroundImage:
-                            imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                        imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                         child:
-                            imageUrl.isEmpty
-                                ? const Icon(
-                                  Icons.person,
-                                  color: Colors.black54,
-                                )
-                                : null,
+                        imageUrl.isEmpty
+                            ? const Icon(
+                          Icons.person,
+                          color: Colors.black54,
+                        )
+                            : null,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -4120,9 +4198,9 @@ class _ContactTab extends StatelessWidget {
               duration: const Duration(milliseconds: 600),
               childAnimationBuilder:
                   (widget) => SlideAnimation(
-                    verticalOffset: 50.0,
-                    child: FadeInAnimation(child: widget),
-                  ),
+                verticalOffset: 50.0,
+                child: FadeInAnimation(child: widget),
+              ),
               children: [
                 const _SectionHeader(title: 'Lokalizacja', icon: Icons.map),
                 const SizedBox(height: 12),
@@ -4318,22 +4396,22 @@ class _SalonGallery extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorBuilder:
                               (_, __, ___) => Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      const Color(0xFFF06292).withOpacity(0.2),
-                                      const Color(0xFF8268DC).withOpacity(0.2),
-                                    ],
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.photo_camera_outlined,
-                                    size: 48,
-                                    color: Color(0xFFF06292),
-                                  ),
-                                ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFFF06292).withOpacity(0.2),
+                                  const Color(0xFF8268DC).withOpacity(0.2),
+                                ],
                               ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.photo_camera_outlined,
+                                size: 48,
+                                color: Color(0xFFF06292),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -4371,22 +4449,22 @@ class _SalonGallery extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder:
                         (_, __, ___) => Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                const Color(0xFFF06292).withOpacity(0.2),
-                                const Color(0xFF8268DC).withOpacity(0.2),
-                              ],
-                            ),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.photo_camera_outlined,
-                              size: 48,
-                              color: Color(0xFFF06292),
-                            ),
-                          ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFF06292).withOpacity(0.2),
+                            const Color(0xFF8268DC).withOpacity(0.2),
+                          ],
                         ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.photo_camera_outlined,
+                          size: 48,
+                          color: Color(0xFFF06292),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               );
@@ -4447,14 +4525,14 @@ class _HoursCell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
       decoration: BoxDecoration(
         gradient:
-            isHeader
-                ? LinearGradient(
-                  colors: [
-                    const Color(0xFFF06292).withOpacity(0.1),
-                    const Color(0xFF8268DC).withOpacity(0.1),
-                  ],
-                )
-                : null,
+        isHeader
+            ? LinearGradient(
+          colors: [
+            const Color(0xFFF06292).withOpacity(0.1),
+            const Color(0xFF8268DC).withOpacity(0.1),
+          ],
+        )
+            : null,
         color: isHeader ? null : const Color(0xFFF6F7FB),
         borderRadius: BorderRadius.circular(12),
       ),
@@ -4512,7 +4590,7 @@ class _GalleryTab extends StatelessWidget {
                       final afterUrl = (data['imageAfter'] ?? '').toString();
                       final title = (data['title'] ?? '').toString();
                       final description =
-                          (data['description'] ?? '').toString();
+                      (data['description'] ?? '').toString();
                       return AnimationConfiguration.staggeredList(
                         position: index,
                         duration: const Duration(milliseconds: 600),
@@ -4617,9 +4695,9 @@ class _TipsTab extends StatelessWidget {
                       final iconName = (data['icon'] ?? '') as String?;
                       final icon = _iconFromName(iconName);
                       final imageUrl =
-                          (data['image'] ?? data['imageUrl'] ?? '').toString();
+                      (data['image'] ?? data['imageUrl'] ?? '').toString();
                       final content =
-                          (data['content'] ?? data['body'] ?? '').toString();
+                      (data['content'] ?? data['body'] ?? '').toString();
                       return AnimationConfiguration.staggeredList(
                         position: index,
                         duration: const Duration(milliseconds: 600),
@@ -4633,13 +4711,13 @@ class _TipsTab extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder:
                                         (_) => TipDetailPage(
-                                          title: title,
-                                          content: content,
-                                          imageUrl:
-                                              imageUrl.isNotEmpty
-                                                  ? imageUrl
-                                                  : null,
-                                        ),
+                                      title: title,
+                                      content: content,
+                                      imageUrl:
+                                      imageUrl.isNotEmpty
+                                          ? imageUrl
+                                          : null,
+                                    ),
                                   ),
                                 );
                               },
@@ -4698,9 +4776,9 @@ class _TipCardState extends State<_TipCard> {
           boxShadow: [
             BoxShadow(
               color:
-                  _isHovered
-                      ? const Color(0xFFF06292).withOpacity(0.15)
-                      : Colors.black.withOpacity(0.06),
+              _isHovered
+                  ? const Color(0xFFF06292).withOpacity(0.15)
+                  : Colors.black.withOpacity(0.06),
               blurRadius: _isHovered ? 16 : 15,
               offset: Offset(0, _isHovered ? 5 : 4),
             ),
@@ -4733,20 +4811,20 @@ class _TipCardState extends State<_TipCard> {
                     },
                     errorBuilder:
                         (_, __, ___) => Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                const Color(0xFFF06292).withOpacity(0.3),
-                                const Color(0xFF8268DC).withOpacity(0.3),
-                              ],
-                            ),
-                          ),
-                          child: Icon(
-                            widget.icon,
-                            color: Colors.white,
-                            size: 48,
-                          ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFF06292).withOpacity(0.3),
+                            const Color(0xFF8268DC).withOpacity(0.3),
+                          ],
                         ),
+                      ),
+                      child: Icon(
+                        widget.icon,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
                   ),
                 )
               else
@@ -4804,11 +4882,11 @@ class _TipCardState extends State<_TipCard> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     gradient:
-                        _isHovered
-                            ? const LinearGradient(
-                              colors: [Color(0xFFF06292), Color(0xFFEC407A)],
-                            )
-                            : null,
+                    _isHovered
+                        ? const LinearGradient(
+                      colors: [Color(0xFFF06292), Color(0xFFEC407A)],
+                    )
+                        : null,
                     color: _isHovered ? null : const Color(0xFFF6F7FB),
                     shape: BoxShape.circle,
                   ),
@@ -4856,15 +4934,15 @@ class _HoverButtonState extends State<_HoverButton> {
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               boxShadow:
-                  _isHovered
-                      ? [
-                        BoxShadow(
-                          color: const Color(0xFFF06292).withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ]
-                      : [],
+              _isHovered
+                  ? [
+                BoxShadow(
+                  color: const Color(0xFFF06292).withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+                  : [],
             ),
             child: widget.child,
           ),
@@ -4896,21 +4974,21 @@ class _HoverCardState extends State<_HoverCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow:
-              _isHovered
-                  ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                  : [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+          _isHovered
+              ? [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ]
+              : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: widget.child,
       ),
@@ -4955,21 +5033,21 @@ class _HoverServiceCardState extends State<_HoverServiceCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow:
-              _isHovered
-                  ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 25,
-                      offset: const Offset(0, 10),
-                    ),
-                  ]
-                  : [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+          _isHovered
+              ? [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 25,
+              offset: const Offset(0, 10),
+            ),
+          ]
+              : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
@@ -4994,10 +5072,10 @@ class _HoverServiceCardState extends State<_HoverServiceCard> {
                   },
                   errorBuilder:
                       (_, __, ___) => Container(
-                        width: 300,
-                        height: 280,
-                        color: Colors.grey[300],
-                      ),
+                    width: 300,
+                    height: 280,
+                    color: Colors.grey[300],
+                  ),
                 )
               else
                 Container(
@@ -5137,52 +5215,52 @@ class _ServiceFiltersSectionState extends State<_ServiceFiltersSection> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children:
-                _filters.map((filter) {
-                  final isSelected = widget.currentFilter == filter['name'];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      selected: isSelected,
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            filter['icon'] as IconData,
-                            size: 16,
-                            color: isSelected ? Colors.white : filter['color'],
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            filter['name'] as String,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: isSelected ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                        ],
+            _filters.map((filter) {
+              final isSelected = widget.currentFilter == filter['name'];
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  selected: isSelected,
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        filter['icon'] as IconData,
+                        size: 16,
+                        color: isSelected ? Colors.white : filter['color'],
                       ),
-                      backgroundColor: Colors.white,
-                      selectedColor: filter['color'] as Color,
-                      side: BorderSide(
-                        color:
-                            isSelected
-                                ? filter['color'] as Color
-                                : Colors.grey[300]!,
-                        width: 1.5,
+                      const SizedBox(width: 6),
+                      Text(
+                        filter['name'] as String,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isSelected ? Colors.white : Colors.black87,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      onSelected: (selected) {
-                        widget.onFilterChanged(filter['name'] as String);
-                      },
-                    ),
-                  );
-                }).toList(),
+                    ],
+                  ),
+                  backgroundColor: Colors.white,
+                  selectedColor: filter['color'] as Color,
+                  side: BorderSide(
+                    color:
+                    isSelected
+                        ? filter['color'] as Color
+                        : Colors.grey[300]!,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  onSelected: (selected) {
+                    widget.onFilterChanged(filter['name'] as String);
+                  },
+                ),
+              );
+            }).toList(),
           ),
         ),
       ],

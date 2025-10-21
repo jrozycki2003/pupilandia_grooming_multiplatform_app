@@ -83,9 +83,9 @@ class _HistoryPageState extends State<HistoryPage>
   int _getDuration(Map<String, dynamic> data) {
     final duration =
         data['totalDuration'] ??
-        data['serviceDuration'] ??
-        data['duration'] ??
-        60;
+            data['serviceDuration'] ??
+            data['duration'] ??
+            60;
     return duration is int ? duration : (duration as num).toInt();
   }
 
@@ -121,22 +121,22 @@ class _HistoryPageState extends State<HistoryPage>
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text('Odwołać wizytę?'),
-            content: const Text('Czy na pewno chcesz odwołać tę wizytę?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Nie'),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8268DC),
-                ),
-                child: const Text('Tak', style: TextStyle(color: Colors.white)),
-              ),
-            ],
+        title: const Text('Odwołać wizytę?'),
+        content: const Text('Czy na pewno chcesz odwołać tę wizytę?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Nie'),
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF8268DC),
+            ),
+            child: const Text('Tak', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -264,43 +264,43 @@ class _HistoryPageState extends State<HistoryPage>
         }
 
         final userBookings =
-            snapshot.data!.docs.where((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              return (data['Email'] ?? '') == currentUserEmail;
-            }).toList();
+        snapshot.data!.docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          return (data['Email'] ?? '') == currentUserEmail;
+        }).toList();
 
         final now = DateTime.now();
         final upcoming =
-            userBookings.where((d) {
-                final date = _getScheduledDate(
-                  d.data() as Map<String, dynamic>,
-                );
-                return date != null && date.isAfter(now);
-              }).toList()
-              ..sort((a, b) {
-                final dateA =
-                    _getScheduledDate(a.data() as Map<String, dynamic>)!;
-                final dateB =
-                    _getScheduledDate(b.data() as Map<String, dynamic>)!;
-                return dateA.compareTo(dateB);
-              });
+        userBookings.where((d) {
+          final date = _getScheduledDate(
+            d.data() as Map<String, dynamic>,
+          );
+          return date != null && date.isAfter(now);
+        }).toList()
+          ..sort((a, b) {
+            final dateA =
+            _getScheduledDate(a.data() as Map<String, dynamic>)!;
+            final dateB =
+            _getScheduledDate(b.data() as Map<String, dynamic>)!;
+            return dateA.compareTo(dateB);
+          });
 
         final past =
-            userBookings.where((d) {
-                final date = _getScheduledDate(
-                  d.data() as Map<String, dynamic>,
-                );
-                return date == null || !date.isAfter(now);
-              }).toList()
-              ..sort((a, b) {
-                final dateA =
-                    _getScheduledDate(a.data() as Map<String, dynamic>) ??
+        userBookings.where((d) {
+          final date = _getScheduledDate(
+            d.data() as Map<String, dynamic>,
+          );
+          return date == null || !date.isAfter(now);
+        }).toList()
+          ..sort((a, b) {
+            final dateA =
+                _getScheduledDate(a.data() as Map<String, dynamic>) ??
                     DateTime(2000);
-                final dateB =
-                    _getScheduledDate(b.data() as Map<String, dynamic>) ??
+            final dateB =
+                _getScheduledDate(b.data() as Map<String, dynamic>) ??
                     DateTime(2000);
-                return dateB.compareTo(dateA);
-              });
+            return dateB.compareTo(dateA);
+          });
 
         return TabBarView(
           children: [
@@ -313,9 +313,9 @@ class _HistoryPageState extends State<HistoryPage>
   }
 
   Widget _buildBookingList(
-    List<QueryDocumentSnapshot> docs, {
-    required bool isPast,
-  }) {
+      List<QueryDocumentSnapshot> docs, {
+        required bool isPast,
+      }) {
     if (docs.isEmpty) {
       return Container(
         margin: const EdgeInsets.all(20),
@@ -365,28 +365,41 @@ class _HistoryPageState extends State<HistoryPage>
     final price = _getPrice(data);
     final services = _getServices(data);
     final serviceNames = services
-        .map((s) => s['name'] ?? '')
+        .map((s) {
+      final name = s['name'] ?? '';
+      final category = s['category'] ?? '';
+      if (name.isEmpty) return '';
+      if (category.isEmpty) return name;
+      // Add compact category badge
+      String badge = '';
+      if (category.contains('Mały pies')) badge = '(Mały)';
+      else if (category.contains('Średni pies')) badge = '(Średni)';
+      else if (category.contains('Duży pies')) badge = '(Duży)';
+      else if (category.contains('Koty')) badge = '(Kot)';
+      else if (category.contains('Psy rasowe')) badge = '(Rasowy)';
+      return badge.isEmpty ? name : '$name $badge';
+    })
         .where((s) => s.isNotEmpty)
         .join(', ');
 
     final dateStr =
         data['date'] ??
-        (scheduledDate != null
-            ? '${scheduledDate.day}/${scheduledDate.month}/${scheduledDate.year}'
-            : '-');
+            (scheduledDate != null
+                ? '${scheduledDate.day}/${scheduledDate.month}/${scheduledDate.year}'
+                : '-');
     final timeStr =
         data['time'] ??
-        (scheduledDate != null
-            ? '${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}'
-            : '-');
+            (scheduledDate != null
+                ? '${scheduledDate.hour.toString().padLeft(2, '0')}:${scheduledDate.minute.toString().padLeft(2, '0')}'
+                : '-');
     final endTime = scheduledDate?.add(Duration(minutes: duration));
 
     final now = DateTime.now();
     final isToday =
         scheduledDate != null &&
-        scheduledDate.year == now.year &&
-        scheduledDate.month == now.month &&
-        scheduledDate.day == now.day;
+            scheduledDate.year == now.year &&
+            scheduledDate.month == now.month &&
+            scheduledDate.day == now.day;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -463,8 +476,8 @@ class _HistoryPageState extends State<HistoryPage>
                   price == 0
                       ? '-'
                       : (price is int
-                          ? '$price zł'
-                          : '${price.toStringAsFixed(2)} zł'),
+                      ? '$price zł'
+                      : '${price.toStringAsFixed(2)} zł'),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF8268DC),
@@ -499,13 +512,13 @@ class _HistoryPageState extends State<HistoryPage>
                         MaterialPageRoute(
                           builder:
                               (_) => BookAppointmentPage(
-                                editBookingId: doc.id,
-                                prefill: {
-                                  'date': scheduledDate,
-                                  'hour': timeStr,
-                                  'services': services,
-                                },
-                              ),
+                            editBookingId: doc.id,
+                            prefill: {
+                              'date': scheduledDate,
+                              'hour': timeStr,
+                              'services': services,
+                            },
+                          ),
                         ),
                       );
                     },
@@ -532,17 +545,17 @@ class _HistoryPageState extends State<HistoryPage>
                 child: ElevatedButton.icon(
                   onPressed:
                       () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => FeedbackPage(
-                                bookingId: doc.id,
-                                currentUserEmail: currentUserEmail,
-                                currentUserName: currentUserName,
-                                services: services,
-                              ),
-                        ),
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (_) => FeedbackPage(
+                        bookingId: doc.id,
+                        currentUserEmail: currentUserEmail,
+                        currentUserName: currentUserName,
+                        services: services,
                       ),
+                    ),
+                  ),
                   icon: const Icon(Icons.rate_review_outlined, size: 18),
                   label: const Text('Zostaw opinię'),
                   style: ElevatedButton.styleFrom(
@@ -785,36 +798,36 @@ class _FeedbackPageState extends State<FeedbackPage>
                               borderRadius: BorderRadius.circular(16),
                               child: Center(
                                 child:
-                                    _submitting
-                                        ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                        : const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons.send,
-                                              color: Colors.white,
-                                              size: 22,
-                                            ),
-                                            SizedBox(width: 12),
-                                            Text(
-                                              'Zapisz opinię',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                _submitting
+                                    ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                    : const Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.send,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      'Zapisz opinię',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

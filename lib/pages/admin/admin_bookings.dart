@@ -39,6 +39,7 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
   /// Format wyświetlania kalendarza (tydzień/miesiąc/2 tygodnie)
   CalendarFormat _calendarFormat = CalendarFormat.week;
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,7 +173,7 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
                 formatButtonVisible: true, // Pokaż przycisk zmiany formatu
                 titleCentered: true, // Wycentruj tytuł miesiąca
                 formatButtonShowsNext:
-                    false, // Przycisk formatu nie pokazuje następnego
+                false, // Przycisk formatu nie pokazuje następnego
               ),
             ),
           ),
@@ -299,19 +300,29 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
   Widget _buildBookingCard(Map<String, dynamic> booking) {
     final id = booking['id'] ?? '';
 
-    // Pobierz nazwę usługi (obsługa starego i nowego formatu)
+    // Pobierz wszystkie usługi i pokaż z kategorią (obsługa starego i nowego formatu)
     String service = booking['Service'] ?? '';
-    if (service.isEmpty) {
-      // Nowy format - usługa w liście 'services'
-      final services = booking['services'];
-      if (services is List && services.isNotEmpty) {
-        final first = services.first;
-        if (first is Map && first['name'] != null) {
-          service = first['name'].toString();
+    String servicesText = '';
+    final services = booking['services'];
+    if (services is List && services.isNotEmpty) {
+      servicesText = services.map((s) {
+        if (s is Map) {
+          final name = (s['name'] ?? '').toString();
+          final cat = (s['category'] ?? '').toString();
+          String badge = '';
+          if (cat.contains('Mały pies')) badge = 'Mały';
+          else if (cat.contains('Średni pies')) badge = 'Średni';
+          else if (cat.contains('Duży pies')) badge = 'Duży';
+          else if (cat.contains('Koty')) badge = 'Kot';
+          else if (cat.contains('Psy rasowe')) badge = 'Rasowy';
+          return badge.isNotEmpty ? '$name ($badge)' : name;
         }
-      }
+        return s.toString();
+      }).where((e) => e.isNotEmpty).join(', ');
     }
-    service = service.isEmpty ? 'Brak usługi' : service;
+    if (servicesText.isEmpty) {
+      servicesText = service.isEmpty ? 'Brak usługi' : service;
+    }
 
     // Pobierz inne dane rezerwacji
     final time = booking['time'] ?? '';
@@ -388,44 +399,44 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
                   },
                   itemBuilder:
                       (context) => [
-                        // Opcja edycji
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 20),
-                              SizedBox(width: 12),
-                              Text('Edytuj'),
-                            ],
+                    // Opcja edycji
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 20),
+                          SizedBox(width: 12),
+                          Text('Edytuj'),
+                        ],
+                      ),
+                    ),
+                    // Opcja anulowania (zmienia status)
+                    const PopupMenuItem(
+                      value: 'cancel',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.cancel,
+                            size: 20,
+                            color: Colors.orange,
                           ),
-                        ),
-                        // Opcja anulowania (zmienia status)
-                        const PopupMenuItem(
-                          value: 'cancel',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.cancel,
-                                size: 20,
-                                color: Colors.orange,
-                              ),
-                              SizedBox(width: 12),
-                              Text('Anuluj'),
-                            ],
-                          ),
-                        ),
-                        // Opcja usunięcia (usuwa z bazy)
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20, color: Colors.red),
-                              SizedBox(width: 12),
-                              Text('Usuń'),
-                            ],
-                          ),
-                        ),
-                      ],
+                          SizedBox(width: 12),
+                          Text('Anuluj'),
+                        ],
+                      ),
+                    ),
+                    // Opcja usunięcia (usuwa z bazy)
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 20, color: Colors.red),
+                          SizedBox(width: 12),
+                          Text('Usuń'),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -438,13 +449,18 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
                 Icon(Icons.spa, size: 20, color: Colors.grey[600]),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    service,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        servicesText,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -510,11 +526,11 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
       MaterialPageRoute(
         builder:
             (_) => BookAppointmentPage(
-              isAdmin: true, // Tryb administratora
-              prefill: {
-                'date': _selectedDay, // Predefiniuj datę
-              },
-            ),
+          isAdmin: true, // Tryb administratora
+          prefill: {
+            'date': _selectedDay, // Predefiniuj datę
+          },
+        ),
       ),
     );
     // Odśwież listę po powrocie
@@ -533,10 +549,10 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
   /// \param id Identyfikator rezerwacji do edycji
   /// \param data Dane rezerwacji
   Future<void> _showEditBookingDialog(
-    BuildContext context,
-    String id,
-    Map<String, dynamic> data,
-  ) async {
+      BuildContext context,
+      String id,
+      Map<String, dynamic> data,
+      ) async {
     DateTime? date;
     try {
       // Spróbuj pobrać datę z Timestamp
@@ -574,10 +590,10 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
       MaterialPageRoute(
         builder:
             (_) => BookAppointmentPage(
-              isAdmin: true,
-              editBookingId: id, // Tryb edycji - przekaż ID
-              prefill: prefill,
-            ),
+          isAdmin: true,
+          editBookingId: id, // Tryb edycji - przekaż ID
+          prefill: prefill,
+        ),
       ),
     );
     // Odśwież listę po powrocie
@@ -593,38 +609,38 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
   /// \param userName Imię użytkownika (do wyświetlenia w dialogu)
   /// \param time Godzina rezerwacji (do wyświetlenia w dialogu)
   void _confirmCancelBooking(
-    BuildContext context,
-    String id,
-    String userName,
-    String time,
-  ) {
+      BuildContext context,
+      String id,
+      String userName,
+      String time,
+      ) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Anuluj Rezerwację'),
-            content: Text(
-              'Czy na pewno chcesz anulować rezerwację $userName o $time?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Nie'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Zaktualizuj status na 'cancelled'
-                  await _db.updateBooking(id, {'status': 'cancelled'});
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    setState(() {}); // Odśwież listę
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                child: const Text('Anuluj Rezerwację'),
-              ),
-            ],
+        title: const Text('Anuluj Rezerwację'),
+        content: Text(
+          'Czy na pewno chcesz anulować rezerwację $userName o $time?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Nie'),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              // Zaktualizuj status na 'cancelled'
+              await _db.updateBooking(id, {'status': 'cancelled'});
+              if (context.mounted) {
+                Navigator.pop(context);
+                setState(() {}); // Odśwież listę
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            child: const Text('Anuluj Rezerwację'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -637,38 +653,38 @@ class _AdminBookingsPageState extends State<AdminBookingsPage> {
   /// \param userName Imię użytkownika (do wyświetlenia w dialogu)
   /// \param time Godzina rezerwacji (do wyświetlenia w dialogu)
   void _confirmDeleteBooking(
-    BuildContext context,
-    String id,
-    String userName,
-    String time,
-  ) {
+      BuildContext context,
+      String id,
+      String userName,
+      String time,
+      ) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Usuń Rezerwację'),
-            content: Text(
-              'Czy na pewno chcesz usunąć rezerwację $userName o $time?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Nie'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Usuń rezerwację z bazy danych
-                  await _db.deleteBooking(id);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    setState(() {}); // Odśwież listę
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                child: const Text('Usuń'),
-              ),
-            ],
+        title: const Text('Usuń Rezerwację'),
+        content: Text(
+          'Czy na pewno chcesz usunąć rezerwację $userName o $time?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Nie'),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              // Usuń rezerwację z bazy danych
+              await _db.deleteBooking(id);
+              if (context.mounted) {
+                Navigator.pop(context);
+                setState(() {}); // Odśwież listę
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Usuń'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -141,9 +141,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
   }
 
   Future<List<String>> _buildDailySlots(
-    DateTime date, {
-    int stepMinutes = 30,
-  }) async {
+      DateTime date, {
+        int stepMinutes = 30,
+      }) async {
     final wh = _workingHoursFor(date);
     if (wh == null) return [];
     DateTime parse(String hhmm) =>
@@ -279,7 +279,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         final ok =
-                            await NotificationsService.requestPermission();
+                        await NotificationsService.requestPermission();
                         if (ctx.mounted) Navigator.of(ctx).pop(ok);
                       },
                       icon: const Icon(Icons.notifications_active_rounded),
@@ -311,12 +311,35 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     return '${DateFormat('HH:mm').format(start)} - ${DateFormat('HH:mm').format(end)}';
   }
 
+  String _formatCategoryDisplay(String category) {
+    // Format category for compact display
+    if (category.contains('Mały pies')) return '🐕 Mały pies';
+    if (category.contains('Średni pies')) return '🐕 Średni pies';
+    if (category.contains('Duży pies')) return '🐕 Duży pies';
+    if (category.contains('Koty')) return '🐱 Koty';
+    if (category.contains('Psy rasowe')) return '🐕 Psy rasowe';
+    return category;
+  }
+
+  String _normalizeCategory(String category) {
+    return category.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  bool _isServiceSelected(String name, String category) {
+    final norm = _normalizeCategory(category);
+    return _selectedServices.any((e) =>
+    (e['name'] ?? '') == name && _normalizeCategory((e['category'] ?? '').toString()) == norm);
+  }
+
   void _addService(Map<String, dynamic> svc) {
     final name = (svc['name'] ?? '').toString();
-    if (_selectedServices.any((e) => e['name'] == name)) return;
+    final category = (svc['category'] ?? '').toString();
+    // Uniqueness by name+category with normalization (handles tiny label differences)
+    if (_isServiceSelected(name, category)) return;
     setState(() {
       _selectedServices.add({
         'name': name,
+        'category': category,
         'duration': (svc['duration'] ?? 60) as int,
         'price': (svc['price'] ?? 0),
       });
@@ -378,9 +401,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
 
     // pick user data depending on admin mode
     final bookingUsername =
-        widget.isAdmin ? _adminNameController.text.trim() : (name ?? '');
+    widget.isAdmin ? _adminNameController.text.trim() : (name ?? '');
     final bookingEmail =
-        widget.isAdmin ? _adminEmailController.text.trim() : (email ?? '');
+    widget.isAdmin ? _adminEmailController.text.trim() : (email ?? '');
 
     if (widget.isAdmin && (bookingUsername.isEmpty || bookingEmail.isEmpty)) {
       _showSnackBar('Uzupełnij imię i email klienta', isError: true);
@@ -389,19 +412,20 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
 
     final booking = <String, dynamic>{
       'services':
-          _selectedServices
-              .map(
-                (s) => {
-                  'name': s['name'],
-                  'duration': s['duration'],
-                  'price': s['price'],
-                },
-              )
-              .toList(),
+      _selectedServices
+          .map(
+            (s) => {
+          'name': s['name'],
+          'category': s['category'],
+          'duration': s['duration'],
+          'price': s['price'],
+        },
+      )
+          .toList(),
       'totalDuration': duration,
       'totalPrice': _totalPrice,
       'date':
-          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+      '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
       'time': _selectedHour,
       'Username': bookingUsername,
       'Image': image,
@@ -443,7 +467,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
             dateTime: reminderAt,
             title: 'Przypomnienie o wizycie',
             body:
-                'Twoja wizyta: ${DateFormat('dd.MM.yyyy HH:mm').format(start)}. Do zobaczenia!',
+            'Twoja wizyta: ${DateFormat('dd.MM.yyyy HH:mm').format(start)}. Do zobaczenia!',
           );
         }
       }
@@ -492,8 +516,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
       if (services != null) {
         _selectedServices.addAll(
           services.whereType<Map<String, dynamic>>().map(
-            (s) => {
+                (s) => {
               'name': (s['name'] ?? '').toString(),
+              'category': (s['category'] ?? '').toString(),
               'duration': (s['duration'] ?? 60) as int,
               'price': (s['price'] ?? 0),
             },
@@ -767,12 +792,26 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                           ),
                           child: const Icon(Icons.check, color: Colors.white),
                         ),
-                        title: Text(
-                          s['name'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s['name'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                            if (s['category'] != null && s['category'].toString().isNotEmpty)
+                              Text(
+                                _formatCategoryDisplay(s['category'].toString()),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                          ],
                         ),
                         subtitle: Row(
                           children: [
@@ -837,7 +876,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                             ),
                           ),
                           Text(
-                            '${_totalPrice == 0 ? '0' : (_totalPrice is int ? _totalPrice.toString() : (_totalPrice).toStringAsFixed(2))} zł',
+                            '${_totalPrice == 0 ? '0' : (_totalPrice is int ? _totalPrice.toString() : (_totalPrice as num).toStringAsFixed(2))} zł',
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -922,7 +961,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF6F7FB),
                   borderRadius: BorderRadius.circular(16),
@@ -935,177 +974,177 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
 
             return Column(
               children:
-                  groomers.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    final firstName = data['firstName'] ?? '';
-                    final lastName = data['lastName'] ?? '';
-                    // Try both 'image' and 'imageUrl' fields
-                    final image =
-                        (data['image'] ?? data['imageUrl'] ?? '').toString();
-                    final groomerId = doc.id;
-                    final isSelected = _selectedGroomerId == groomerId;
+              groomers.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                final firstName = data['firstName'] ?? '';
+                final lastName = data['lastName'] ?? '';
+                // Try both 'image' and 'imageUrl' fields
+                final image =
+                (data['image'] ?? data['imageUrl'] ?? '').toString();
+                final groomerId = doc.id;
+                final isSelected = _selectedGroomerId == groomerId;
 
-                    return Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedGroomerId = groomerId;
-                              _selectedGroomerName = '$firstName $lastName';
-                              _selectedHour = null; // Reset time selection
-                            });
-                          },
+                return Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedGroomerId = groomerId;
+                          _selectedGroomerName = '$firstName $lastName';
+                          _selectedHour = null; // Reset time selection
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient:
+                          isSelected
+                              ? const LinearGradient(
+                            colors: [
+                              Color(0xFFF06292),
+                              Color(0xFFEC407A),
+                            ],
+                          )
+                              : null,
+                          color: isSelected ? null : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient:
-                                  isSelected
-                                      ? const LinearGradient(
-                                        colors: [
-                                          Color(0xFFF06292),
-                                          Color(0xFFEC407A),
-                                        ],
-                                      )
-                                      : null,
-                              color: isSelected ? null : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color:
-                                    isSelected
-                                        ? const Color(0xFFF06292)
-                                        : Colors.grey[300]!,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      isSelected
-                                          ? const Color(
-                                            0xFFF06292,
-                                          ).withOpacity(0.3)
-                                          : Colors.black.withOpacity(0.05),
-                                  blurRadius: isSelected ? 12 : 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                          border: Border.all(
+                            color:
+                            isSelected
+                                ? const Color(0xFFF06292)
+                                : Colors.grey[300]!,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                              isSelected
+                                  ? const Color(
+                                0xFFF06292,
+                              ).withOpacity(0.4)
+                                  : Colors.black.withOpacity(0.05),
+                              blurRadius: isSelected ? 12 : 8,
+                              offset: const Offset(0, 4),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color:
+                                isSelected
+                                    ? Colors.white.withOpacity(0.3)
+                                    : const Color(
+                                  0xFFF06292,
+                                ).withOpacity(0.1),
+                                border: Border.all(
+                                  color:
+                                  isSelected
+                                      ? Colors.white.withOpacity(0.5)
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                    isSelected
+                                        ? Colors.black.withOpacity(0.2)
+                                        : Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child:
+                                image.isNotEmpty
+                                    ? Image.network(
+                                  image,
                                   width: 60,
                                   height: 60,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
+                                  fit: BoxFit.cover,
+                                  filterQuality: FilterQuality.low,
+                                  cacheWidth: 120,
+                                  cacheHeight: 120,
+                                  loadingBuilder: (
+                                      context,
+                                      child,
+                                      loadingProgress,
+                                      ) {
+                                    if (loadingProgress == null)
+                                      return child;
+                                    return Container(
+                                      color: Colors.grey.shade200,
+                                    );
+                                  },
+                                  errorBuilder:
+                                      (_, __, ___) => Container(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                )
+                                    : Container(
+                                  color:
+                                  isSelected
+                                      ? Colors.white
+                                      .withOpacity(0.3)
+                                      : const Color(
+                                    0xFFF06292,
+                                  ).withOpacity(0.1),
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 32,
                                     color:
-                                        isSelected
-                                            ? Colors.white.withOpacity(0.3)
-                                            : const Color(
-                                              0xFFF06292,
-                                            ).withOpacity(0.1),
-                                    border: Border.all(
-                                      color:
-                                          isSelected
-                                              ? Colors.white.withOpacity(0.5)
-                                              : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color:
-                                            isSelected
-                                                ? Colors.black.withOpacity(0.2)
-                                                : Colors.black.withOpacity(0.1),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipOval(
-                                    child:
-                                        image.isNotEmpty
-                                            ? Image.network(
-                                              image,
-                                              width: 60,
-                                              height: 60,
-                                              fit: BoxFit.cover,
-                                              filterQuality: FilterQuality.low,
-                                              cacheWidth: 120,
-                                              cacheHeight: 120,
-                                              loadingBuilder: (
-                                                context,
-                                                child,
-                                                loadingProgress,
-                                              ) {
-                                                if (loadingProgress == null)
-                                                  return child;
-                                                return Container(
-                                                  color: Colors.grey.shade200,
-                                                );
-                                              },
-                                              errorBuilder:
-                                                  (_, __, ___) => Container(
-                                                    color: Colors.grey.shade300,
-                                                  ),
-                                            )
-                                            : Container(
-                                              color:
-                                                  isSelected
-                                                      ? Colors.white
-                                                          .withOpacity(0.3)
-                                                      : const Color(
-                                                        0xFFF06292,
-                                                      ).withOpacity(0.1),
-                                              child: Icon(
-                                                Icons.person,
-                                                size: 32,
-                                                color:
-                                                    isSelected
-                                                        ? Colors.white
-                                                        : const Color(
-                                                          0xFFF06292,
-                                                        ),
-                                              ),
-                                            ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    '$firstName $lastName',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          isSelected
-                                              ? Colors.white
-                                              : Colors.black87,
+                                    isSelected
+                                        ? Colors.white
+                                        : const Color(
+                                      0xFFF06292,
                                     ),
                                   ),
                                 ),
-                                if (isSelected)
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.check,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                  ),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                '$firstName $lastName',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                  isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
             );
           },
         ),
@@ -1349,36 +1388,36 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
                       gradient:
-                          isSelected
-                              ? const LinearGradient(
-                                colors: [Color(0xFFF06292), Color(0xFFEC407A)],
-                              )
-                              : null,
+                      isSelected
+                          ? const LinearGradient(
+                        colors: [Color(0xFFF06292), Color(0xFFEC407A)],
+                      )
+                          : null,
                       color: isSelected ? null : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color:
-                            isSelected ? Colors.transparent : Colors.grey[300]!,
+                        isSelected ? Colors.transparent : Colors.grey[300]!,
                         width: 2,
                       ),
                       boxShadow:
-                          isSelected
-                              ? [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFFF06292,
-                                  ).withOpacity(0.4),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ]
-                              : [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                      isSelected
+                          ? [
+                        BoxShadow(
+                          color: const Color(
+                            0xFFF06292,
+                          ).withOpacity(0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ]
+                          : [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Center(
                       child: Text(
@@ -1387,7 +1426,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                           color: isSelected ? Colors.white : Colors.black87,
                           fontSize: 16,
                           fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.w600,
+                          isSelected ? FontWeight.bold : FontWeight.w600,
                         ),
                       ),
                     ),
@@ -1605,7 +1644,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                     }
 
                     final Map<String, List<QueryDocumentSnapshot>> categorized =
-                        {};
+                    {};
                     for (final doc in docs) {
                       final data = doc.data() as Map<String, dynamic>;
                       final category = (data['category'] ?? 'Inne').toString();
@@ -1711,9 +1750,9 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                         final duration = (data['duration'] ?? 60) as int;
                         final price = (data['price'] ?? 0);
                         final isHighlighted = data['isHighlighted'] == true;
-                        final already = _selectedServices.any(
-                          (e) => e['name'] == name,
-                        );
+                        final itemCategory =
+                        (data['category'] ?? category).toString();
+                        final already = _isServiceSelected(name, itemCategory);
 
                         items.add(
                           Container(
@@ -1723,13 +1762,13 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                             ),
                             decoration: BoxDecoration(
                               color:
-                                  already
-                                      ? categoryColor.withOpacity(0.1)
-                                      : Colors.white,
+                              already
+                                  ? categoryColor.withOpacity(0.1)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color:
-                                    already ? categoryColor : Colors.grey[200]!,
+                                already ? categoryColor : Colors.grey[200]!,
                                 width: already ? 2 : 1,
                               ),
                             ),
@@ -1743,28 +1782,43 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                                 height: 48,
                                 decoration: BoxDecoration(
                                   color:
-                                      already
-                                          ? categoryColor
-                                          : Colors.grey[100],
+                                  already
+                                      ? categoryColor
+                                      : Colors.grey[100],
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
                                   already ? Icons.check : Icons.add,
                                   color:
-                                      already ? Colors.white : Colors.grey[600],
+                                  already ? Colors.white : Colors.grey[600],
                                 ),
                               ),
-                              title: Text(
-                                name,
-                                style: TextStyle(
-                                  fontWeight:
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      fontWeight:
                                       isHighlighted
                                           ? FontWeight.bold
                                           : FontWeight.w600,
-                                  fontSize: isHighlighted ? 15 : 14,
-                                  color:
+                                      fontSize: isHighlighted ? 15 : 14,
+                                      color:
                                       already ? categoryColor : Colors.black87,
-                                ),
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatCategoryDisplay(itemCategory),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: already
+                                          ? categoryColor.withOpacity(0.8)
+                                          : Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                               subtitle: Row(
                                 children: [
@@ -1801,6 +1855,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                               onTap: () {
                                 _addService({
                                   'name': name,
+                                  'category': itemCategory,
                                   'duration': duration,
                                   'price': price,
                                 });
