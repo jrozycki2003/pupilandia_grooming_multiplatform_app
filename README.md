@@ -1,4 +1,4 @@
-# 🐾 Pupilandia — Profesjonalny salon pielęgnacji dla Twojego pupila 💅
+# 🐾 Pupilandia — Profesjonalny salon pielęgnacji dla Twojego pupila 🐶 
 
 Pupilandia to aplikacja mobilna stworzona z myślą o właścicielach zwierząt, którzy chcą w prosty sposób zadbać o swojego pupila.  
 Pozwala wygodnie rezerwować wizyty w salonie groomerskim, zarządzać terminami i korzystać z profesjonalnych usług pielęgnacyjnych – wszystko w jednym miejscu.
@@ -23,7 +23,7 @@ Aplikacja ma na celu:
 
 - 🗓 **Rezerwacja wizyt** – szybka i intuicyjna rezerwacja terminów online  
 - 📆 **Kalendarz** – przegląd wszystkich zaplanowanych wizyt  
-- 👩‍💼 **Panel administratora** – narzędzia do zarządzania salonem  
+- 🤵 **Panel administratora** – narzędzia do zarządzania salonem  
 - 👩‍🔧 **Panel pracownika** – widok harmonogramu własnych rezerwacji i zarządzanie wizytami (bez możliwości usuwania danych)  
 - 🧾 **Historia usług** – dostęp do pełnej historii wizyt  
 - 🔔 **Powiadomienia** – przypomnienia o zbliżających się terminach  
