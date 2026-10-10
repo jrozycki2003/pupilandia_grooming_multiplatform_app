@@ -22,11 +22,27 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await NotificationsService.initialize();
-  // Initialize Polish locale data for DateFormat and set default locale
-  await initializeDateFormatting('pl_PL');
-  Intl.defaultLocale = 'pl_PL';
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint("Firebase init error: $e");
+  }
+
+  try {
+    await NotificationsService.initialize();
+  } catch (e) {
+    debugPrint("Notifications init error: $e");
+  }
+
+  try {
+    await initializeDateFormatting('pl_PL');
+    Intl.defaultLocale = 'pl_PL';
+  } catch (e) {
+    debugPrint("Locale init error: $e");
+  }
+
   runApp(const MyApp());
 }
 

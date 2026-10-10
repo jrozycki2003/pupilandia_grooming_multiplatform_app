@@ -3,7 +3,7 @@
 /// 
 /// Zarządza powiadomieniami przypominającymi o wizytach.
 
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -24,36 +24,37 @@ class NotificationsService {
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    // Timezone init
-    tz.initializeTimeZones();
-    final String localName = tz.local.name; // ensure local initialized
-    tz.setLocalLocation(tz.getLocation(localName));
+    try {
+      // Timezone init
+      tz.initializeTimeZones();
+      try {
+        tz.setLocalLocation(tz.getLocation('Europe/Warsaw'));
+      } catch (_) {
+        tz.setLocalLocation(tz.getLocation('UTC'));
+      }
 
-    const AndroidInitializationSettings androidInit =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
+      const AndroidInitializationSettings androidInit =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
 
-    const InitializationSettings settings = InitializationSettings(
-      android: androidInit,
-      iOS: iosInit,
-      macOS: null,
-    );
+      const InitializationSettings settings = InitializationSettings(
+        android: androidInit,
+        iOS: iosInit,
+      );
 
-    await _plugin.initialize(settings);
-    _initialized = true;
+      await _plugin.initialize(settings);
+      _initialized = true;
+    } catch (e) {
+      debugPrint("NotificationsService initialize error: $e");
+    }
   }
 
   /// \brief Sprawdza czy aplikacja ma uprawnienia do powiadomień
   /// \return true jeśli uprawnienia są przyznane
   static Future<bool> isPermissionGranted() async {
-    if (Platform.isAndroid) {
-      // On Android < 13 it's granted by default. On 13+ needs POST_NOTIFICATIONS
-      final status = await Permission.notification.status;
-      return status.isGranted || status.isLimited;
-    } else {
-      final status = await Permission.notification.status;
-      return status.isGranted || status.isLimited;
-    }
+    if (kIsWeb) return false;
+    final status = await Permission.notification.status;
+    return status.isGranted || status.isLimited;
   }
 
   /// \brief Prośi użytkownika o uprawnienia do powiadomień
