@@ -121,6 +121,19 @@ W przyszłości planowane jest jego opublikowanie w sklepie **Google Play**.
 
 ## 👨‍💻 Autor projektu
 
-**Jakub Różycki**  
+**Jakub Różycki**, **Mateusz Sarwa**, **Michał Dyrka**  
 Wydział Automatyki, Elektroniki i Informatyki  
 Politechnika Śląska
+
+---
+
+## Dokumentacja BAiSM
+
+Przedmiot: Bezpieczeństwo Aplikacji i Systemów Mobilnych.
+
+| Artefakt | Ścieżka |
+| --- | --- |
+| Karta projektu | [docs/karta-projektu.md](docs/karta-projektu.md) |
+| Arkusz zajęć 2 | [docs/arkusze/Z2-modelowanie-zagrozen-i-architektura.docx](docs/arkusze/Z2-modelowanie-zagrozen-i-architektura.docx) |
+| DFD (granice zaufania) | [docs/threat-model/dfd.md](docs/threat-model/dfd.md) |
+| Model zagrożeń v1 | [docs/threat-model/threats-v1.md](docs/threat-model/threats-v1.md) |
