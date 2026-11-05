@@ -3672,7 +3672,7 @@ class _SocialMediaMenu extends StatelessWidget {
 }
 
 class _BrandIcon extends StatelessWidget {
-  final IconData icon;
+  final FaIconData icon;
   final Color color;
   final String label;
   final String url;

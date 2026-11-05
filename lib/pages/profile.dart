@@ -3,7 +3,6 @@
 /// 
 /// Umożliwia edycję danych profilu, zmianę zdjęcia i wylogowanie.
 
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kubaproject/services/database.dart';
 import 'package:kubaproject/services/shared_pref.dart';
 import 'package:kubaproject/widgets/user_avatar.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// \class ProfilePage
@@ -50,44 +48,6 @@ class _ProfilePageState extends State<ProfilePage>
   /// \brief Sprawdza i żąda uprawnień jeśli potrzebne
   /// \param permission Typ uprawnienia do sprawdzenia
   /// \return true jeśli uprawnienie jest przyznane
-  Future<bool> _ensurePermission(Permission permission) async {
-    var status = await permission.status;
-    if (status.isGranted || status.isLimited) return true;
-
-    status = await permission.request();
-    if (status.isGranted || status.isLimited) return true;
-
-    if (!mounted) return false;
-
-    if (status.isPermanentlyDenied) {
-      final open = await showDialog<bool>(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: const Text('Wymagane uprawnienia'),
-              content: const Text(
-                'Aby kontynuować, przyznaj uprawnienia w ustawieniach aplikacji.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Anuluj'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Otwórz ustawienia'),
-                ),
-              ],
-            ),
-      );
-      if (open == true) await openAppSettings();
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Brak uprawnień.')));
-    }
-    return false;
-  }
 
   /// \brief Obsługuje kliknięcie zmiany avatara
   /// 
@@ -118,11 +78,7 @@ class _ProfilePageState extends State<ProfilePage>
                 title: const Text('Wybierz z galerii'),
                 onTap: () async {
                   Navigator.pop(context);
-                  var ok = await _ensurePermission(Permission.photos);
-                  if (!ok && Platform.isAndroid) {
-                    ok = await _ensurePermission(Permission.storage);
-                  }
-                  if (ok) await _pickAndUpload(ImageSource.gallery);
+                  await _pickAndUpload(ImageSource.gallery);
                 },
               ),
               ListTile(
@@ -130,9 +86,7 @@ class _ProfilePageState extends State<ProfilePage>
                 title: const Text('Zrób zdjęcie'),
                 onTap: () async {
                   Navigator.pop(context);
-                  if (await _ensurePermission(Permission.camera)) {
-                    await _pickAndUpload(ImageSource.camera);
-                  }
+                  await _pickAndUpload(ImageSource.camera);
                 },
               ),
             ],
